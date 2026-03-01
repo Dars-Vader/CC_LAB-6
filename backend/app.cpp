@@ -46,10 +46,18 @@ int main() {
         std::string response = "HTTP/1.1 200 OK\r\n";
         response += "Content-Type: text/plain\r\n";
         response += "Connection: close\r\n\r\n";
-        response += "Served by backend: " + std::string(hostname) + "\n";
-        
-        send(client_fd, response.c_str(), response.length(), 0);
-        close(client_fd);
+    std::string body = "Served by backend: " + hostname + "\n";
+    std::string response =
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: text/plain\r\n"
+        "Content-Length: " + std::to_string(body.size()) + "\r\n"
+        "Connection: close\r\n"
+        "\r\n" +
+        body;
+    
+    send(client_socket, response.c_str(), response.size(), 0);
+    shutdown(client_socket, SHUT_RDWR);
+    close(client_socket);
     }
     
     return 0;
