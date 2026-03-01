@@ -42,23 +42,17 @@ int main() {
         int client_fd = accept(server_fd, NULL, NULL);
         if (client_fd < 0) continue;
         
-        // Simple HTTP response
+        std::string body = std::string("Served by backend: ") + hostname + "\n";
+
         std::string response = "HTTP/1.1 200 OK\r\n";
         response += "Content-Type: text/plain\r\n";
+        response += "Content-Length: " + std::to_string(body.size()) + "\r\n";
         response += "Connection: close\r\n\r\n";
-    std::string body = "Served by backend: " + hostname + "\n";
-    std::string response =
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: " + std::to_string(body.size()) + "\r\n"
-        "Connection: close\r\n"
-        "\r\n" +
-        body;
-    
-    send(client_socket, response.c_str(), response.size(), 0);
-    shutdown(client_socket, SHUT_RDWR);
-    close(client_socket);
-    }
+        response += body;
+        
+        send(client_fd, response.c_str(), response.size(), 0);
+        shutdown(client_fd, SHUT_RDWR);
+        close(client_fd);
     
     return 0;
 }
